@@ -1,35 +1,48 @@
 package kalah;
 
+import java.util.Scanner;
+
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
-
+//import kalah.GameBoard;
 /**
  * This class is the starting point for a Kalah implementation using
  * the test infrastructure.
  */
 public class Kalah {
 	
+	GameBoard gameBoard = new GameBoard();
+//	String input;
 	public static void main(String[] args) {
 		new Kalah().play(new MockIO());
 	}
 	public void play(IO io) {
-		// Replace what's below with your implementation
-		io.println("+----+-------+-------+-------+-------+-------+-------+----+");
-		io.println("| P2 | 6[ 4] | 5[ 4] | 4[ 4] | 3[ 4] | 2[ 4] | 1[ 4] |  0 |");
-		io.println("|    |-------+-------+-------+-------+-------+-------|    |");
-		io.println("|  0 | 1[ 4] | 2[ 4] | 3[ 4] | 4[ 4] | 5[ 4] | 6[ 4] | P1 |");
-		io.println("+----+-------+-------+-------+-------+-------+-------+----+");
-		io.println("Player 1's turn - Specify house number or 'q' to quit: ");
-	}
-	public void gameSetup() {
-		//setup game player, player1 and player2
-		
-		//Setup house and stones
-		// this might be finished in Player class
-		
-	}
-	
-	public void movement() {
-		//describe stone moves.
+		while(gameBoard.isTheGameEnded() == false)
+		{
+			gameBoard.showGameBoard();
+			Scanner input = new Scanner(System.in); 
+			String keyPress = input.nextLine(); 
+			System.out.println("You entered string "+keyPress); 
+			System.out.println("You entered int "+ Integer.parseInt(keyPress)); 
+			switch (keyPress)
+			{
+			case "q":
+				gameBoard.endTheGame();
+				break;
+			case "1":
+			case "2":
+			case "3":
+			case "4":
+			case "5":
+			case "6":
+				gameBoard.moveStoneInSelectHouse(Integer.parseInt(keyPress));
+				break;
+			case "0":
+			case "7":
+				System.out.println("You can not select player store!");
+				break;
+			}
+			
+		}
 	}
 }

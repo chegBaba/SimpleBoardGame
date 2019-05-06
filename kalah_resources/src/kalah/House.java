@@ -8,31 +8,31 @@ package kalah;
  *
  */
 public class House {
-	int iStock = 0; 
+	private int _stock = 0; 
 	
 	//To Start the game, each house holds 4 stones
 	public House() {
-		this.iStock = 4;
+		this._stock = 4;
 	}
 	
 	public House(int numb) {
-		this.iStock = numb;
+		this._stock = numb;
 	}
 	
 	//Selected house give all the stone it holds
 	public int getStoneNumb() {
-		return this.iStock;
+		return this._stock;
 	}
 	
-	public void emptyHouse() {
-		this.iStock = 0;
+	public void emptyStone() {
+		this._stock = 0;
 	}
 	
-	void addStone() {
-		this.iStock += 1;
+	public void addStone() {
+		this._stock += 1;
 	}
 	
-	void subStone() {
-		this.iStock -= 1;
+	public void reduceStone() {
+		this._stock -= 1;
 	}
 }
