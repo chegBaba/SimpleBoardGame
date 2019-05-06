@@ -1,7 +1,5 @@
 package kalah;
 
-import java.util.Vector;
-
 public class GameBoard {
 	Node head = null;
 	
@@ -11,7 +9,7 @@ public class GameBoard {
 		Node next;
 	};
 	
-	/*Function to insert a node at begining of the circular linked list*/
+	/*Function to insert a node at beginning of the circular linked list*/
 	static Node push(Node head_ref, House data)
 	{
 		Node temp = head_ref;
@@ -56,26 +54,37 @@ public class GameBoard {
 		head = new Node();
 		head.data = m_house;
 		head.next = null;
-		PlayerBucket m_player1 = new PlayerBucket("Player1");
-		PlayerBucket m_player2 = new PlayerBucket("Player2");
+		Store m_player1 = new Store("Player1");
+		Store m_player2 = new Store("Player2");
 		head = push(head,m_player1);
 		for (int i=0; i<12; ++i)
 		{
+			//add stores to each side of the board
 			if (i == 5)
 				head = push(head,m_player2);
 			head = push(head, m_house);	
 		}
 	}
 	
-	public int getStoneNumber(int number, int player)
+	//Print current GameBoard
+	public void showGameBoard()
+	{
+		System.out.println("+----+-------+-------+-------+-------+-------+-------+----+");
+		System.out.println("| P2 | 6[ 4] | 5[ 4] | 4[ 4] | 3[ 4] | 2[ 4] | 1[ 4] |  0 |");
+		System.out.println("|    |-------+-------+-------+-------+-------+-------|    |");
+		System.out.println("|  0 | 1[ 4] | 2[ 4] | 3[ 4] | 4[ 4] | 5[ 4] | 6[ 4] | P1 |");
+		System.out.println("+----+-------+-------+-------+-------+-------+-------+----+");
+		System.out.println("Player 1's turn - Specify house number or 'q' to quit: ");
+	}
+	
+	public int getStoneNumber(int houseNumber, int player)
 	{
 		int index = 0;
-		int target = number;
 		Node temp = head;
 		
 		if (player == 1)
 		{
-			target += 6;
+			houseNumber += 6;
 		}
 		
 		if (temp != null)
@@ -83,7 +92,7 @@ public class GameBoard {
 			do { 
 				++index;
 				temp = temp.next;
-			}while (index!=target);
+			}while (index!=houseNumber);
 		}
 		
 		if (temp !=null)
@@ -93,21 +102,21 @@ public class GameBoard {
 	}
 		
 	
-	public void moveStoneInSelectHouse(int number, int player)
+	public void moveStoneInSelectHouse(int houseNumber, int player)
 	{
-		int numbStoneToMove = getStoneNumber(number, player);
+		int stones = getStoneNumber(houseNumber, player);
 		Node temp = this.head;
 		int index = 0;
-		if (numbStoneToMove !=0)
+		if (stones !=0)
 		{
-			for (int i=0; i<numbStoneToMove; ++i)
+			for (int i=0; i<stones; ++i)
 			{
 				//keep relocate all stones till no stone left in hand
 				//First, find the start point
 				do {
 					++index;
 					temp = temp.next;
-				}while(index!=number);
+				}while(index!=houseNumber);
 				//Second, in following house, each house add one stone
 				temp.data.addStone();
 				temp=temp.next;
