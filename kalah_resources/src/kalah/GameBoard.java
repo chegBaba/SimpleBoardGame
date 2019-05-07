@@ -86,22 +86,21 @@ public class GameBoard {
 		{
 			selectedHouse+=7;
 		}
-		if (isPlayerGetContinue(selectedHouse, stones) == false)
-			switchPlayer();
 		_gameBoard[selectedHouse].emptyStone();
-		int index = selectedHouse+1;//
+		int index = selectedHouse+1;//offset point from P1 store
 		if (stones == 0 )
 		{
 			System.out.println("You have select a empty house!");
-			switchPlayer();
 			return -1;
 		}
+		
+		//Stone relocation
 		while(stones!=0)
 		{
 			index=index%_gameBoard.length;
 			
 			//Do not move stones into another player's store
-			if (_activePlayer == "Player 2" && index !=14)
+			if (_activePlayer == "Player 2" && index !=0)
 			{
 				_gameBoard[index].addStone();
 				index+=1;
@@ -115,29 +114,34 @@ public class GameBoard {
 				index+=1;
 			}
 		}
+		//remove offset
+		if (index == 14)
+			index = 0;
+		else
+			index-=1;
 		
-		//after last stone replacement
-		//capture opposite house if possible
-		if ( index != 0 || index !=7) 
+		//Make sure the interested spots are not player store
+		if ( index != 0 && index !=7) 
 		{
-			//if the stone is place into empty house
-			if (_gameBoard[index].getStoneNumb() == 0){
-				//get opposite house
-				this.getOppsiteHouseStock(index);
+			if (_gameBoard[index].getStoneNumb() == 1) {
+				this.getOppsiteHouseStock(index);	
 			}
 		}
+		//Switch player
+		if (isPlayerGetContinue(selectedHouse, stones) == false)
+			switchPlayer();
 		
 		return 1;
 	}
 	
 	public void switchPlayer()
 	{
-//		if(this._activePlayer == "Player 1")
-//		{
-//			this._activePlayer = "Player 2";
-//		}else {
-//			this._activePlayer = "Player 1";
-//		}
+		if(this._activePlayer == "Player 1")
+		{
+			this._activePlayer = "Player 2";
+		}else {
+			this._activePlayer = "Player 1";
+		}
 	}
 	
 	//Check whether the active player get another round
@@ -191,16 +195,23 @@ public class GameBoard {
 			return false;
 		}
 	}
+
+	//Find the opposite side house of the given house number
+	private int getOppositeHouseNumber(int givenHouse)
+	{
+		return _gameBoard.length - givenHouse;
+	}
 	
 	//get all stones in opposite house if it is not empty
 	private void getOppsiteHouseStock(int givenHouse)
 	{
-		int oppoHouse = _gameBoard.length - givenHouse;
-		int oppoStoneNumb = _gameBoard[oppoHouse].getStoneNumb();
+		int oppoHouse = getOppositeHouseNumber(givenHouse);
+		int stock = _gameBoard[oppoHouse].getStoneNumb();
 		
-		if (oppoStoneNumb > 0 && _gameBoard[oppoHouse].getOwner() != _activePlayer)
+		//Continue only if working on anamy's house
+		if (stock > 0 && _gameBoard[oppoHouse].getOwner() != _activePlayer)
 		{
-			_gameBoard[givenHouse].addStones(oppoStoneNumb);
+			_gameBoard[givenHouse].addStones(stock);
 			_gameBoard[oppoHouse].emptyStone();
 		}
 	}
