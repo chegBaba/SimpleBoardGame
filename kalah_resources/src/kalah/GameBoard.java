@@ -8,12 +8,17 @@ public class GameBoard {
 	//	>|    |-------+-------+-------+-------+-------+-------|    |
 	//	>|  0 | 1[ 4] | 2[ 4] | 3[ 4] | 4[ 4] | 5[ 4] | 6[ 4] | P1 |
 	//	>+----+-------+-------+-------+-------+-------+-------+----+
-	House[] _gameBoard = new House[14];
+	House[] _gameBoard;// = new House[14];
 	String _activePlayer = "Player 1";
 	int _stonesInTotal = 48;
 	
 	public GameBoard() 
 	{
+		gameInit();
+	}
+	
+	private void gameInit() {
+		_gameBoard = new House[14];
 		//initiate the game board with 12 houses 
 		//each houses have four stones
 		for (int i = 0; i<_gameBoard.length; ++i)
@@ -24,6 +29,11 @@ public class GameBoard {
 			}else {
 				_gameBoard[i] = new House(4);
 			}
+			//Set owner property
+			if (i<=7 && i >=1)
+				_gameBoard[i].setOwner("Player 2");
+			else
+				_gameBoard[i].setOwner("Player 1");
 		}
 	}
 	
@@ -54,11 +64,11 @@ public class GameBoard {
 	
 	public int getStoneNumber(int houseNumber, String player)
 	{
-		if (player == "Player 1")
+		if (player == "Player 2")
 		{
 			return _gameBoard[houseNumber].getStoneNumb();
 		}else {
-			if (player == "Player 2")
+			if (player == "Player 1")
 			{
 				return _gameBoard[houseNumber+7].getStoneNumb();
 			}else {
@@ -72,27 +82,31 @@ public class GameBoard {
 	public int moveStoneInSelectHouse(int selectedHouse)
 	{
 		int stones = getStoneNumber(selectedHouse, _activePlayer);
-		if (_activePlayer == "Player 2")
+		if (_activePlayer == "Player 1")
 		{
 			selectedHouse+=7;
 		}
+		if (isPlayerGetContinue(selectedHouse, stones) == false)
+			switchPlayer();
 		_gameBoard[selectedHouse].emptyStone();
 		int index = selectedHouse+1;//
-		if (stones ==0 )
+		if (stones == 0 )
 		{
 			System.out.println("You have select a empty house!");
+			switchPlayer();
 			return -1;
 		}
 		while(stones!=0)
 		{
 			index=index%_gameBoard.length;
+			
 			//Do not move stones into another player's store
-			if (_activePlayer == "Player 1" && index !=14)
+			if (_activePlayer == "Player 2" && index !=14)
 			{
 				_gameBoard[index].addStone();
 				index+=1;
 				stones-=1;
-			}else if(_activePlayer == "Player 2" && index !=7)
+			}else if(_activePlayer == "Player 1" && index !=7)
 			{
 				_gameBoard[index].addStone();
 				index+=1;
@@ -101,24 +115,47 @@ public class GameBoard {
 				index+=1;
 			}
 		}
+		
+		//after last stone replacement
+		//capture opposite house if possible
+		if ( index != 0 || index !=7) 
+		{
+			//if the stone is place into empty house
+			if (_gameBoard[index].getStoneNumb() == 0){
+				//get opposite house
+				this.getOppsiteHouseStock(index);
+			}
+		}
+		
 		return 1;
 	}
 	
 	public void switchPlayer()
 	{
-		if(this._activePlayer == "Player 1")
-		{
-			this._activePlayer = "Player 2";
-		}else {
-			this._activePlayer = "Player 1";
-		}
+//		if(this._activePlayer == "Player 1")
+//		{
+//			this._activePlayer = "Player 2";
+//		}else {
+//			this._activePlayer = "Player 1";
+//		}
 	}
 	
 	//Check whether the active player get another round
 	private boolean isPlayerGetContinue(int startPoint, int stoneNumber)
 	{
 		//TODO
-		return false;
+		if ((startPoint + stoneNumber)%7 == 0 && _activePlayer=="Player 2")
+		{
+			System.out.println("Player 2 AGAIN!");
+			return true;
+		}
+		else if (((startPoint + stoneNumber)%14 == 0 && _activePlayer=="Player 1"))
+		{
+			System.out.println("Player 1 AGAIN!");
+			return true;
+		}
+		else
+			return false;
 	}
 	
 	//Get player score with player number
@@ -144,7 +181,7 @@ public class GameBoard {
 	}
 	
 	//Check game condition, terminate the game if winner occurs
-	public boolean isTheGameEnded()
+	public boolean isTheGameEnd()
 	{
 		if (this.getTotalScore() >= this._stonesInTotal)
 		{
@@ -155,12 +192,37 @@ public class GameBoard {
 		}
 	}
 	
+	//get all stones in opposite house if it is not empty
+	private void getOppsiteHouseStock(int givenHouse)
+	{
+		int oppoHouse = _gameBoard.length - givenHouse;
+		int oppoStoneNumb = _gameBoard[oppoHouse].getStoneNumb();
+		
+		if (oppoStoneNumb > 0 && _gameBoard[oppoHouse].getOwner() != _activePlayer)
+		{
+			_gameBoard[givenHouse].addStones(oppoStoneNumb);
+			_gameBoard[oppoHouse].emptyStone();
+		}
+	}
+	
 	public void endTheGame()
 	{
 		//print game board and present the winner 
 		this.showGameBoard();
+		String winner;
+				
+		if (this.getPlayerScore(1)<this.getPlayerScore(2))
+			winner = "Player 2";
+		else if (this.getPlayerScore(1)<this.getPlayerScore(2))
+			winner = "Player 1";
+		else
+			winner = "Nobody";
+		
 		//Show winner
-		System.out.println("The winer is: ");//TODO:Address the winner 
+		System.out.println("The WINNER is: "+winner); 
+		
+		//Reset game
+		this.gameInit();
 		
 	}
 }

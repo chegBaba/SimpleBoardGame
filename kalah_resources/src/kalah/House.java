@@ -9,6 +9,7 @@ package kalah;
  */
 public class House {
 	private int _stock = 0; 
+	private String _owner = "Player";
 	
 	//To Start the game, each house holds 4 stones
 	public House() {
@@ -32,7 +33,16 @@ public class House {
 		this._stock += 1;
 	}
 	
+	public void addStones(int numb) {
+		this._stock += numb;
+	}
 	public void reduceStone() {
 		this._stock -= 1;
+	}
+	public void setOwner(String name) {
+		this._owner = name;
+	}
+	public String getOwner() {
+		return this._owner;
 	}
 }

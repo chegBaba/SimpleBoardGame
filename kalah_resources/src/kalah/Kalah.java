@@ -17,13 +17,11 @@ public class Kalah {
 		new Kalah().play(new MockIO());
 	}
 	public void play(IO io) {
-		while(gameBoard.isTheGameEnded() == false)
+		while(gameBoard.isTheGameEnd() == false)
 		{
 			gameBoard.showGameBoard();
 			Scanner input = new Scanner(System.in); 
 			String keyPress = input.nextLine(); 
-			System.out.println("You entered string "+keyPress); 
-			System.out.println("You entered int "+ Integer.parseInt(keyPress)); 
 			switch (keyPress)
 			{
 			case "q":
