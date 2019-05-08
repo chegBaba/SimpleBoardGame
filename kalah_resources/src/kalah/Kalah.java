@@ -1,31 +1,33 @@
 package kalah;
 
-import java.util.Scanner;
-
 import com.qualitascorpus.testsupport.IO;
 import com.qualitascorpus.testsupport.MockIO;
-//import kalah.GameBoard;
 /**
  * This class is the starting point for a Kalah implementation using
  * the test infrastructure.
  */
 public class Kalah {
 	
-	GameBoard gameBoard = new GameBoard();
-//	String input;
+//	private static GameBoard gameBoard;
+//	public static MockIO m_io = new MockIO();
+	
 	public static void main(String[] args) {
 		new Kalah().play(new MockIO());
 	}
+
+	
 	public void play(IO io) {
-		while(gameBoard.isTheGameEnd() == false)
+		GameBoard gameBoard = new GameBoard(io);
+		
+		while(gameBoard.getGameStatus() == true)
 		{
 			gameBoard.showGameBoard();
-			Scanner input = new Scanner(System.in); 
-			String keyPress = input.nextLine(); 
+			String keyPress = gameBoard.showInstruction();
+//			String keyPress = io.readFromKeyboard(gameBoard.getActivePlayer()+"\'s turn - Specify house number or 'q' to quit:"); 
 			switch (keyPress)
 			{
 			case "q":
-				gameBoard.endTheGame();
+				gameBoard.endGame();
 				break;
 			case "1":
 			case "2":
@@ -37,7 +39,7 @@ public class Kalah {
 				break;
 			case "0":
 			case "7":
-				System.out.println("You can not select player store!");
+//				System.out.println("You can not select player store!");
 				break;
 			}
 			

@@ -8,16 +8,7 @@ package kalah;
  */
 public class Store extends House {
 	
-	private String _player = "playerName";
 	public Store() {
 		this.emptyStone(); 
-	}
-	
-	public Store(String name) {
-		this.setName(name);
-	}
-	
-	public void setName(String name) {
-		this._player = name;
 	}
 }

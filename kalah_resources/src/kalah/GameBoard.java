@@ -1,5 +1,8 @@
 package kalah;
 
+//import com.qualitascorpus.testsupport.MockIO;
+import com.qualitascorpus.testsupport.IO;
+
 public class GameBoard {
 	//Game Board 
 	//|p1| 1 | 2 | 3| 4| 5| 6| P2| 1| 2| 3| 4| 5| 6|...|p1|
@@ -8,19 +11,22 @@ public class GameBoard {
 	//	>|    |-------+-------+-------+-------+-------+-------|    |
 	//	>|  0 | 1[ 4] | 2[ 4] | 3[ 4] | 4[ 4] | 5[ 4] | 6[ 4] | P1 |
 	//	>+----+-------+-------+-------+-------+-------+-------+----+
-	House[] _gameBoard;// = new House[14];
-	String _activePlayer = "Player 1";
+	IO _io;
+	House[] _gameBoard;
+	String _activePlayer = "Player P1";
+	boolean _isGaming = true;
 	int _stonesInTotal = 48;
 	
-	public GameBoard() 
+	public GameBoard(IO io) 
 	{
+		this._io = io;
 		gameInit();
 	}
 	
-	private void gameInit() {
+	private void gameInit() 
+	{
 		_gameBoard = new House[14];
-		//initiate the game board with 12 houses 
-		//each houses have four stones
+		//initiate with 12 houses, each houses have 4 stones
 		for (int i = 0; i<_gameBoard.length; ++i)
 		{
 			if (i == 0 || i == 7)
@@ -31,44 +37,46 @@ public class GameBoard {
 			}
 			//Set owner property
 			if (i<=7 && i >=1)
-				_gameBoard[i].setOwner("Player 2");
+				_gameBoard[i].setOwner("Player P2");
 			else
-				_gameBoard[i].setOwner("Player 1");
+				_gameBoard[i].setOwner("Player P1");
 		}
 	}
 	
-	//Print current GameBoard
+	public String showInstruction()
+	{
+//		_io.println(_activePlayer+"'s turn - Specify house number or 'q' to quit: ");
+		return _io.readFromKeyboard(this.getActivePlayer()+"\'s turn - Specify house number or 'q' to quit:");
+	}
 	public void showGameBoard()
 	{
-		System.out.println("+----+-------+-------+-------+-------+-------+-------+----+");
-		System.out.print("| P2 | 6[ "+ _gameBoard[6].getStoneNumb()+ "] "
+		_io.println("+----+-------+-------+-------+-------+-------+-------+----+");
+		_io.println("| P2 | 6[ "+ _gameBoard[6].getStoneNumb()+ "] "
 				+"| 5[ "+_gameBoard[5].getStoneNumb()+"] "
 				+"| 4[ "+_gameBoard[4].getStoneNumb()+"] "
 				+"| 3[ "+_gameBoard[3].getStoneNumb()+"] "
 				+"| 2[ "+_gameBoard[2].getStoneNumb()+"] "
 				+"| 1[ "+_gameBoard[1].getStoneNumb()+"] "
-				+"|  "+_gameBoard[0].getStoneNumb()+ " |\n");//score of P1
-		System.out.println("|    |-------+-------+-------+-------+-------+-------|    |");
-		System.out.print("|  "+_gameBoard[7].getStoneNumb()//score of P2
+				+"|  "+_gameBoard[0].getStoneNumb()+ " |");//score of P1
+		_io.println("|    |-------+-------+-------+-------+-------+-------|    |");
+		_io.println("|  "+_gameBoard[7].getStoneNumb()//score of P2
 						+ " | 1[ "+_gameBoard[8].getStoneNumb()+"]"
 						+ " | 2[ "+_gameBoard[9].getStoneNumb()
 						+"] | 3[ "+_gameBoard[10].getStoneNumb()
 						+"] | 4[ "+_gameBoard[11].getStoneNumb()
 						+"] | 5[ "+_gameBoard[12].getStoneNumb()
 						+"] | 6[ "+_gameBoard[13].getStoneNumb()
-						+"] | P1 |\n");
-	//		System.out.println("|  0 | 1[ 4] | 2[ 4] | 3[ 4] | 4[ 4] | 5[ 4] | 6[ 4] | P1 |");
-		System.out.println("+----+-------+-------+-------+-------+-------+-------+----+");
-		System.out.println(_activePlayer+"'s turn - Specify house number or 'q' to quit: ");
+						+"] | P1 |");
+		_io.println("+----+-------+-------+-------+-------+-------+-------+----+");
 	}
 	
 	public int getStoneNumber(int houseNumber, String player)
 	{
-		if (player == "Player 2")
+		if (player == "Player P2")
 		{
 			return _gameBoard[houseNumber].getStoneNumb();
 		}else {
-			if (player == "Player 1")
+			if (player == "Player P1")
 			{
 				return _gameBoard[houseNumber+7].getStoneNumb();
 			}else {
@@ -82,7 +90,8 @@ public class GameBoard {
 	public int moveStoneInSelectHouse(int selectedHouse)
 	{
 		int stones = getStoneNumber(selectedHouse, _activePlayer);
-		if (_activePlayer == "Player 1")
+		int record = stones;
+		if (_activePlayer == "Player P1")
 		{
 			selectedHouse+=7;
 		}
@@ -100,20 +109,22 @@ public class GameBoard {
 			index=index%_gameBoard.length;
 			
 			//Do not move stones into another player's store
-			if (_activePlayer == "Player 2" && index !=0)
+			if (_activePlayer == "Player P2" && index !=0)
 			{
 				_gameBoard[index].addStone();
 				index+=1;
 				stones-=1;
-			}else if(_activePlayer == "Player 1" && index !=7)
+			}else if(_activePlayer == "Player P1" && index !=7)
 			{
 				_gameBoard[index].addStone();
 				index+=1;
-				stones-=1;
+				stones=stones-1;
 			}else {
 				index+=1;
 			}
 		}
+		
+		
 		//remove offset
 		if (index == 14)
 			index = 0;
@@ -127,39 +138,38 @@ public class GameBoard {
 				this.getOppsiteHouseStock(index);	
 			}
 		}
-		//Switch player
-		if (isPlayerGetContinue(selectedHouse, stones) == false)
-			switchPlayer();
-		
+		//Same Player get another route if they manage to 
+		checkPlayerSwitch(selectedHouse, record);
 		return 1;
 	}
 	
 	public void switchPlayer()
 	{
-		if(this._activePlayer == "Player 1")
+		if(this._activePlayer == "Player P1")
 		{
-			this._activePlayer = "Player 2";
+			this._activePlayer = "Player P2";
 		}else {
-			this._activePlayer = "Player 1";
+			this._activePlayer = "Player P1";
 		}
 	}
 	
 	//Check whether the active player get another round
-	private boolean isPlayerGetContinue(int startPoint, int stoneNumber)
+	private void checkPlayerSwitch(int startPoint, int stoneNumber)
 	{
-		//TODO
 		if ((startPoint + stoneNumber)%7 == 0 && _activePlayer=="Player 2")
 		{
 			System.out.println("Player 2 AGAIN!");
-			return true;
+//			return true;
 		}
-		else if (((startPoint + stoneNumber)%14 == 0 && _activePlayer=="Player 1"))
+		else if (((startPoint + stoneNumber)%14 == 0 && _activePlayer=="Player P1"))
 		{
-			System.out.println("Player 1 AGAIN!");
-			return true;
+			System.out.println("Player P1 AGAIN!");
+//			return true;
 		}
-		else
-			return false;
+		else {
+			switchPlayer();
+//			return false;
+		}
 	}
 	
 	//Get player score with player number
@@ -184,16 +194,38 @@ public class GameBoard {
 		return getPlayerScore(1) + getPlayerScore(2);
 	}
 	
+	private boolean isPlayerHousesEmpty(int firstHouse) {
+		for (int i=firstHouse ; i<firstHouse+6; ++i)
+		{
+			if (_gameBoard[i].getStoneNumb() != 0)
+				return false;
+		}
+		return true;
+	}
+	
 	//Check game condition, terminate the game if winner occurs
 	public boolean isTheGameEnd()
 	{
 		if (this.getTotalScore() >= this._stonesInTotal)
 		{
-			System.out.println("GameENDs");
+			System.out.println("Game over");
+			return true;
+		}else if(isPlayerHousesEmpty(1) || isPlayerHousesEmpty(8)){
 			return true;
 		}else {
 			return false;
 		}
+	}
+	
+	//set game status to false to end the game
+	public void endGame() {
+		this._isGaming = false;
+		_io.println("Game over");
+		this.showGameBoard();
+	}
+	
+	public boolean getGameStatus() {
+		return this._isGaming;
 	}
 
 	//Find the opposite side house of the given house number
@@ -218,22 +250,23 @@ public class GameBoard {
 	
 	public void endTheGame()
 	{
-		//print game board and present the winner 
 		this.showGameBoard();
-		String winner;
-				
-		if (this.getPlayerScore(1)<this.getPlayerScore(2))
-			winner = "Player 2";
-		else if (this.getPlayerScore(1)<this.getPlayerScore(2))
-			winner = "Player 1";
-		else
-			winner = "Nobody";
-		
-		//Show winner
-		System.out.println("The WINNER is: "+winner); 
-		
-		//Reset game
-		this.gameInit();
-		
+//		@SuppressWarnings("unused")
+//		String winner;
+//				
+//		if (this.getPlayerScore(1)<this.getPlayerScore(2))
+//			winner = "Player P2";
+//		else if (this.getPlayerScore(1)>this.getPlayerScore(2))
+//			winner = "Player P1";
+//		else
+//			winner = "Nobody";
+//		
+//		//Show winner
+//		_io.println("Game over"); 
+////		showGameBoard();
+	}
+	
+	public String getActivePlayer() {
+		return _activePlayer;
 	}
 }
